@@ -4,3 +4,5 @@ export { default as Movies } from "../components/Movies/Movies.jsx";
 export { default as NavBar } from "../components/NavBar/NavBar.jsx";
 export { default as Profile } from "../components/Profile/Profile.jsx";
 export { default as Sidebar } from "../components/Sidebar/Sidebar.jsx";
+export { default as MovieList } from "../components/MovieList/MovieList.jsx";
+export { default as Movie } from "../components/Movie/Movie.jsx";

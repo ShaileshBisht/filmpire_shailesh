@@ -9,7 +9,7 @@ export default makeStyles((theme) => ({
     justifyContent: "space-between",
     marginLeft: "240px",
     [theme.breakpoints.down("sm")]: {
-      marginLeft: 0,
+      marginLeft: "0",
       flexWrap: "wrap",
     },
   },
@@ -30,8 +30,8 @@ export default makeStyles((theme) => ({
   },
   linkButton: {
     "&:hover": {
-      color: "white ! important",
-      TextDecoration: "none",
+      color: "white !important",
+      textDecoration: "none",
     },
   },
 }));
