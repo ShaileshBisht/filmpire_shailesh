@@ -1,4 +1,5 @@
 import { makeStyles } from "@mui/styles";
+import { height } from "@mui/system";
 
 export default makeStyles((theme) => ({
   containerSpaceAround: {
@@ -58,6 +59,19 @@ export default makeStyles((theme) => ({
     width: "100%",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
+    },
+  },
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  video: {
+    width: "50%",
+    height: "50%",
+    [theme.breakpoints.down("sm")]: {
+      width: "90%",
+      height: "90%",
     },
   },
 }));
