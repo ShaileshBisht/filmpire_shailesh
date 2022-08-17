@@ -7,3 +7,4 @@ export { default as Sidebar } from "../components/Sidebar/Sidebar.jsx";
 export { default as MovieList } from "../components/MovieList/MovieList.jsx";
 export { default as Movie } from "../components/Movie/Movie.jsx";
 export { default as Search } from "../components/Search/Search.jsx";
+export { default as Pagination } from "../components/Pagination/Pagination.jsx";
