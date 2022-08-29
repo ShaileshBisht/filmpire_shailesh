@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Typography,
@@ -23,39 +23,87 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-// import { useGetMovieQuery } from "../../services/TMDB";
+
+import { selectGenreOrCategory } from "../../features/currentGenreOrCategory";
 import useStyles from "./styles";
+import {
+  useGetMovieQuery,
+  useGetRecommendationsQuery,
+  useGetListQuery,
+} from "../../services/TMDB";
 import genreIcons from "../../assets/genres";
 import { MovieList } from "..";
-
-import {
-  useGetRecommendationsQuery,
-  useGetMovieQuery,
-} from "../../services/TMDB";
-import { selectGenreOrCategory } from "../../features/currentGenreOrCategory";
+import { userSelector } from "../../features/auth";
 
 const MovieInformation = () => {
+  const { user } = useSelector(userSelector);
   const { id } = useParams();
-  const { data, isFetching, error } = useGetMovieQuery(id);
-
   const classes = useStyles();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
 
+  const { data, isFetching, error } = useGetMovieQuery(id);
+  const { data: favoriteMovies } = useGetListQuery({
+    listName: "favorite/movies",
+    accountId: user.id,
+    sessionId: localStorage.getItem("session_id"),
+    page: 1,
+  });
+  const { data: watchlistMovies } = useGetListQuery({
+    listName: "watchlist/movies",
+    accountId: user.id,
+    sessionId: localStorage.getItem("session_id"),
+    page: 1,
+  });
   const { data: recommendations, isFetching: isRecommendationsFetching } =
-    useGetRecommendationsQuery({
-      list: "/recommendations",
-      movie_id: id,
-    });
+    useGetRecommendationsQuery({ list: "/recommendations", movie_id: id });
 
-  const isMovieFavorited = true;
-  const isMovieWatchlisted = true;
+  const [isMovieFavorited, setIsMovieFavorited] = useState(false);
+  const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
 
-  const addToFavorites = () => {};
+  useEffect(() => {
+    setIsMovieFavorited(
+      !!favoriteMovies?.results?.find((movie) => movie?.id === data?.id)
+    );
+  }, [favoriteMovies, data]);
 
-  const addToWatchlist = () => {};
+  useEffect(() => {
+    setIsMovieWatchlisted(
+      !!watchlistMovies?.results?.find((movie) => movie?.id === data?.id)
+    );
+  }, [watchlistMovies, data]);
 
-  // console.log(recommendations);
+  const addToFavorites = async () => {
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem("session_id")}`,
+      {
+        media_type: "movie",
+        media_id: id,
+        favorite: !isMovieFavorited,
+      }
+    );
+
+    setIsMovieFavorited((prev) => !prev);
+  };
+
+  // console.log({ isMovieWatchlisted });
+
+  const addToWatchlist = async () => {
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem("session_id")}`,
+      {
+        media_type: "movie",
+        media_id: id,
+        watchlist: !isMovieWatchlisted,
+      }
+    );
+
+    setIsMovieWatchlisted((prev) => !prev);
+  };
 
   if (isFetching) {
     return (
@@ -68,7 +116,7 @@ const MovieInformation = () => {
   if (error) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
-        <Link to="/">Something has gone wrong - Go Back</Link>
+        <Link to="/">Something has gone wrong - Go back</Link>
       </Box>
     );
   }
@@ -110,9 +158,9 @@ const MovieInformation = () => {
           </Typography>
         </Grid>
         <Grid item className={classes.genresContainer}>
-          {data?.genres?.map((genre, i) => (
+          {data?.genres?.map((genre) => (
             <Link
-              key={genre?.name}
+              key={genre.name}
               className={classes.links}
               to="/"
               onClick={() => dispatch(selectGenreOrCategory(genre.id))}
@@ -139,8 +187,8 @@ const MovieInformation = () => {
         </Typography>
         <Grid item container spacing={2}>
           {data &&
-            data.credits?.cast
-              ?.map(
+            data.credits.cast
+              .map(
                 (character, i) =>
                   character.profile_path && (
                     <Grid
@@ -161,7 +209,7 @@ const MovieInformation = () => {
                         {character?.name}
                       </Typography>
                       <Typography color="textSecondary">
-                        {character?.character.split("/")[0]}
+                        {character.character.split("/")[0]}
                       </Typography>
                     </Grid>
                   )
@@ -171,7 +219,7 @@ const MovieInformation = () => {
         <Grid item container style={{ marginTop: "2rem" }}>
           <div className={classes.buttonsContainer}>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="medium" variant="outlined">
+              <ButtonGroup size="small" variant="outlined">
                 <Button
                   target="_blank"
                   rel="noopener noreferrer"
@@ -197,7 +245,6 @@ const MovieInformation = () => {
                 </Button>
               </ButtonGroup>
             </Grid>
-
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
               <ButtonGroup size="medium" variant="outlined">
                 <Button
@@ -237,7 +284,6 @@ const MovieInformation = () => {
         <Typography variant="h3" gutterBottom align="center">
           You might also like
         </Typography>
-        {/* Loop through the recommended movies.. */}
         {recommendations ? (
           <MovieList movies={recommendations} numberOfMovies={12} />
         ) : (
@@ -256,7 +302,7 @@ const MovieInformation = () => {
             className={classes.video}
             frameBorder="0"
             title="Trailer"
-            src={`https://www.youtube.com/embed/${data?.videos?.results[0].key}`}
+            src={`https://www.youtube.com/embed/${data.videos.results[0].key}`}
             allow="autoplay"
           />
         )}
