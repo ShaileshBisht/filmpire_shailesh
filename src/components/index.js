@@ -9,3 +9,4 @@ export { default as Movie } from "../components/Movie/Movie.jsx";
 export { default as Search } from "../components/Search/Search.jsx";
 export { default as Pagination } from "../components/Pagination/Pagination.jsx";
 export { default as RatedCards } from "../components/RatedCards/RatedCards.jsx";
+export { default as FeaturedMovie } from "../components/FeaturedMovie/FeaturedMovie.jsx";
