@@ -18,7 +18,7 @@ const useAlan = () => {
   useEffect(() => {
     alanBtn({
       key: "7a54e63dc0fe8072bf52256d5d6d71572e956eca572e1d8b807a3e2338fdd0dc/stage",
-      onCommand: ({ command, mode, genres, genreOrCategory }) => {
+      onCommand: ({ command, mode, genres, genreOrCategory, query }) => {
         if (command === "chooseGenre") {
           const foundGenre = genres.find(
             (g) => g.name.toLowerCase() === genreOrCategory.toLowerCase()
@@ -45,6 +45,8 @@ const useAlan = () => {
         } else if (command === "logout") {
           localStorage.clear();
           history.push("/");
+        } else if (command === "search") {
+          dispatch(searchMovie(query));
         }
       },
     });
